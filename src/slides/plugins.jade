@@ -1,0 +1,279 @@
+section
+  section
+    h2 Plugins
+    img(src=require("../img/plugins.jpg"))
+  section
+    h2 Plugins
+    div.
+      Using staged build callbacks, developers can introduce their own behaviors into the Webpack build process. Building plugins is a bit more advanced than building loaders, because you'll need to understand some of the Webpack low-level internals to hook into them.
+  section
+    h5 html plugin
+    a(href='https://github.com/jantimon/html-webpack-plugin') github.com/jantimon/html-webpack-plugin
+    pre
+      code.hljs.
+        $ npm install html-webpack-plugin --save
+    pre
+      code.hljs.javascript.
+        const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+        module.exports = {
+          context: __dirname,
+          plugins: [new HtmlWebpackPlugin()],
+        ...
+    pre
+      code.hljs.
+        $ webpack
+        Hash: 62362b5f4e11078c7f0b
+        Version: webpack 2.2.1
+        Time: 5918ms
+            Asset       Size  Chunks             Chunk Names
+              0.js  789 bytes       0  [emitted]
+              1.js  809 bytes       1  [emitted]
+              2.js  792 bytes       2  [emitted]
+          main.js    19.9 kB       3  [emitted]  main
+        index.html  180 bytes          [emitted]
+  section
+    h5 html plugin (index.html)
+    pre
+      code.hljs.
+        &lt;!DOCTYPE html&gt;
+        &lt;html&gt;
+          &lt;head&gt;
+            &lt;meta charset="UTF-8"&gt;
+            &lt;title&gt;Webpack App&lt;/title&gt;
+          &lt;/head&gt;
+          &lt;body&gt;
+          &lt;script type="text/javascript" src="main.js"&gt;&lt;/script&gt;&lt;/body&gt;
+        &lt;/html&gt;
+  section
+    h5 html plugin
+    pre
+      code.hljs.javascript.
+        const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+        module.exports = {
+
+          context: __dirname,
+
+          plugins: [
+            new HtmlWebpackPlugin({
+              template: './src/index.jade',
+              inject: false,
+              minify: true,
+              // title: 'A document Title',
+              // filename: 'example.html',
+              // favicon: '/path/to/favicon.ico',
+              // hash: true,
+              // cache: true,
+              // ...
+            })
+          ],
+  section
+    h5 No Emit On Errors Plugin
+    pre
+      code.hljs.
+        entry: {
+          main: "./src/main.js",
+          hello: "./src/hello.js",
+        },
+    pre
+      code.hljs.
+        $ webpack
+        Hash: c65ef066bafa9bddfe7e
+        Version: webpack 2.2.1
+        Time: 6093ms
+            Asset       Size  Chunks             Chunk Names
+          main.js    6.43 kB       0  [emitted]  main
+        index.html  180 bytes          [emitted]
+          [0] ./src/main.js 36 bytes {0} [built]
+
+        ERROR in Entry module not found: Error: Can't resolve './src/hello.js' in '/Users/alex/tmp/xo'
+  section
+    h5 No Emit On Errors Plugin
+    pre
+      code.hljs.
+        class NoEmitOnErrorsPlugin {
+          apply(compiler) {
+            compiler.plugin("should-emit", (compilation) => {
+              if(compilation.errors.length > 0)
+                return false;
+            });
+            compiler.plugin("compilation", (compilation) => {
+              compilation.plugin("should-record", () => {
+                if(compilation.errors.length > 0)
+                  return false;
+              });
+            });
+          }
+        }
+  section
+    h5 No Emit On Errors Plugin
+    pre
+      code.hljs.javascript.
+        const HtmlWebpackPlugin = require('html-webpack-plugin');
+        const NODE_ENV = process.env.NODE_ENV || 'development';
+        const webpack = require("webpack");
+
+        module.exports = {
+
+          context: __dirname,
+
+          plugins: [
+            new HtmlWebpackPlugin(),
+            new webpack.NoEmitOnErrorsPlugin(),
+          ],
+        ...
+    pre
+      code.hljs.
+        $ webpack
+        Hash: c65ef066bafa9bddfe7e
+        Version: webpack 2.2.1
+        Time: 6462ms
+          [0] ./src/main.js 36 bytes {0} [built]
+
+        ERROR in Entry module not found: Error: Can't resolve './src/hello.js' in '/Users/alex/tmp/xo'
+  section
+    h5 Define plugin
+    pre
+      code.hljs.javascipt.
+        // webpack.config.js
+
+        new webpack.DefinePlugin({
+          NODE_ENV: JSON.stringify(NODE_ENV),
+          LANG:     JSON.stringify('ru'),
+        })
+    pre
+      code.hljs.javascipt.
+        // main.js
+        console.log(NODE_ENV);
+        console.log(LANG);
+    img(src=require("../img/define_plugin.png"))
+  section
+    h5 Provide plugin
+    pre
+      code.hljs.javascript.
+        plugins: [
+          new HtmlWebpackPlugin(),
+          new webpack.NoEmitOnErrorsPlugin(),
+          new webpack.DefinePlugin({
+            NODE_ENV: JSON.stringify(NODE_ENV),
+            LANG:     JSON.stringify('ru'),
+          }),
+          new webpack.ProvidePlugin({
+            jQuery: "jquery"
+          })
+        ],
+  section
+    h5 Provide plugin
+    pre
+      code.hljs.javascript.
+        var main = () => {
+          jQuery("body").css({backgroundColor: 'pink'}); // just works
+          true;
+        };
+
+        export default main();
+    img(src=require("../img/provide_plugin.png"))
+  section
+    h5 commons chunk plugin
+    a(href='http://webpack.github.io/docs/list-of-plugins.html#commonschunkplugin') webpack.github.io/docs/list-of-plugins.html#commonschunkplugin
+    pre
+      code.hljs.javascipt.
+        // ...
+        entry: {
+          main:     "./src/main.js",
+          admin:    "./src/admin.js",
+          contacts: "./src/contacts.js",
+        },
+    pre
+      code.hljs.
+        $ webpack
+        Hash: fdce4fdec7450482c92a
+        Version: webpack 2.2.1
+        Time: 3931ms
+              Asset    Size  Chunks                    Chunk Names
+            main.js  997 kB       0  [emitted]  [big]  main
+        contacts.js  997 kB       1  [emitted]  [big]  contacts
+          admin.js  997 kB       2  [emitted]  [big]  admin
+  section
+    h5 commons chunk plugin
+    pre
+      code.hljs.javascipt.
+        // ...
+        entry: {
+          main:     "./src/main.js",
+          admin:    "./src/admin.js",
+          contacts: "./src/contacts.js",
+        },
+        plugins: [
+          new webpack.optimize.CommonsChunkPlugin({
+            name: "commons",
+            // (the commons chunk name)
+
+            filename: "commons.js",
+            // (the filename of the commons chunk)
+
+            // minChunks: 3,
+            // (Modules must be shared between 3 entries)
+
+            // chunks: ["pageA", "pageB"],
+            // (Only use these entries)
+          })
+        ]
+  section
+    h5 commons chunk plugin
+    pre
+      code.hljs.
+        $ webpack
+        Hash: b7ad5a335760407cca4c
+        Version: webpack 2.2.1
+        Time: 3261ms
+              Asset     Size  Chunks                    Chunk Names
+            main.js  1.12 kB       0  [emitted]         main
+        contacts.js  1.14 kB       1  [emitted]         contacts
+          admin.js  1.13 kB       2  [emitted]         admin
+        commons.js     1 MB       3  [emitted]  [big]  commons 
+    pre
+      code.hljs.html.
+        &lt;script type="text/javascript" src="commons.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="main.js"&gt;&lt;/script&gt;
+  section
+    h5 Extract Text Plugin
+    pre
+      code.hljs.
+        const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+        module.exports = {
+          loaders: [{
+            test: /\.css$/,
+            loader: ExtractTextPlugin.extract({
+              fallback: 'style-loader', // loaders which applies when text is not extracted
+              loader: [{
+                loader: 'css-loader'
+              }]
+            })
+          }],
+
+          plugins: [
+            new ExtractTextPlugin("./src/style.css"),
+            new webpack.DefinePlugin({
+              NODE_ENV: JSON.stringify(NODE_ENV),
+              LANG:     JSON.stringify('ru'),
+            }),
+            new webpack.ProvidePlugin({
+              jQuery: "jquery"
+            }),
+          ],
+        },
+  section
+    h5 Extract Text Plugin
+    pre
+      code.hljs.
+        $ webpack
+        loader option has been deprecated - replace with "use"
+        Hash: cc4848cb2463df83c8f6
+        Version: webpack 2.2.1
+        Time: 4000ms
+                  Asset       Size  Chunks                    Chunk Names
+                main.js     998 kB       0  [emitted]  [big]  main
+        ./src/style.css  214 bytes       0  [emitted]         main

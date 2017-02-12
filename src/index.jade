@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    link(rel='stylesheet' href='/reveal.css')
+    title.
+      Let's webpack
+  body
+    .reveal
+      .slides
+        include ./slides/start.jade
+        include ./slides/babel.jade
+        include ./slides/require.jade
+        include ./slides/loaders.jade
+        include ./slides/dev_tools.jade
+        include ./slides/plugins.jade
+        section
+          div 👏👏👏
+          h1 the end
+          div 👏👏👏
+    script(src='main.js')
+

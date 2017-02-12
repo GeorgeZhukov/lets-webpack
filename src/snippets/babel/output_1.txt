@@ -1,0 +1,7 @@
+/***/ function(module, exports) {
+
+  export default (text => {
+    alert(`hello ${text}`);
+  });
+
+/***/ }

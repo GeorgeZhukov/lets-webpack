@@ -1,0 +1,86 @@
+section
+  section
+    h2 More Loaders
+    img(src=require("../img/loaders.png"))
+  section
+    h6 how to load css
+    pre
+      code.hljs.javascript.
+        {
+          test: /\.css$/,
+          loader: ['style-loader', 'css-loader'],
+        }
+    ul
+      li
+        a(href='https://github.com/webpack-contrib/css-loader') github.com/webpack-contrib/css-loader
+        ul
+          li The CSS loader takes a CSS file and returns the CSS with imports and url(...) resolved via webpack's require functionality
+      li
+        a(href='https://github.com/webpack-contrib/style-loader') github.com/webpack-contrib/style-loader
+        ul
+          li Adds CSS to the DOM by injecting a &lt;style&gt; tag
+  section
+    h6 require it from js file
+    pre
+      code.hljs.javascript.
+        require("reveal.js/css/reveal.css");
+        require("reveal.js/css/theme/solarized.css");
+        require("highlight.js/styles/solarized-dark.css");
+    img(src=require("../img/style_tag.png"))
+  section
+    h3.
+      Preprocessing
+    ul
+      li
+        a(href='https://github.com/webpack-contrib/coffee-loader') github.com/webpack-contrib/coffee-loader
+      li
+        a(href='https://github.com/TypeStrong/ts-loader') github.com/TypeStrong/ts-loader
+      li
+        a(href='https://github.com/jtangelder/sass-loader') github.com/jtangelder/sass-loader
+      li
+        a(href='https://github.com/pugjs/pug-loader') github.com/pugjs/pug-loader
+        span (jade)
+      li .....
+      li a lot of them
+  section
+    h4 url-loader (file-loader)
+    pre
+      code.hljs.javascript.
+        {
+          test: /\.(eot|woff|woff2|ttf|svg|png|jpg)$/,
+          loader: 'url-loader?name=[name]-[hash].[ext]'
+        }
+  section
+    h4 url-loader (file-loader)
+    ul
+      li generates file names that are "content hashed"
+      li If you require the file to get its URL, therefore, none of the code has to change references to the new version of the file.
+      li Anything loaded with file-loader gets included in the assets JSON output of webpack, so you can see all the assets in one place.
+      li The url loader works like the file loader, but can return a Data Url if the file is smaller than a byte limit.
+  section
+    h4 Pre/Post Loaders
+    pre
+      code.hljs.
+        module.exports = {
+          module: {
+            preLoaders: [{
+              test:    /\.js$/,
+              exclude: /(node_modules)\//,
+              loader:  'jshint!jscs'
+            }],
+
+            postLoaders: [{
+              test:    /\.js$/,
+              exclude: /(test|node_modules)\//,
+              loader:  'istanbul-instrumenter'
+            }]
+          }
+        };
+  section
+    h4 Loaders are applying in this order
+    ul
+      li module.preLoaders are applied
+      li Inlined loaders are applied
+      li module.loaders are applied
+      li module.postLoaders are applied
+

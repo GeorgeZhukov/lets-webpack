@@ -1,0 +1,23 @@
+/***/ function(module, exports, __webpack_require__) {
+
+  "use strict";
+
+  var greeting = __webpack_require__(1);
+  greeting('World');
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  exports.default = function (text) {
+    alert("hello " + text);
+  };
+
+/***/ }
+/******/ ]);

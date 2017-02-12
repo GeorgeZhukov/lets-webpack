@@ -1,0 +1,16 @@
+$ npm init
+$ npm install -g webpack
+$ mkdir src; touch src/main.js;
+$ echo "console.log('hello')" > src/main.js
+$
+$ webpack src/main.js bundle/main.js
+Hash: 46b75511c049183a12a0
+Version: webpack 2.2.1
+Time: 54ms
+  Asset     Size  Chunks             Chunk Names
+build.js  2.53 kB       0  [emitted]  main
+  [0] ./src/main.js 22 bytes {0} [built]
+$
+$ ls
+$ bundle          package.json    src
+

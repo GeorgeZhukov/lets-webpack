@@ -1,0 +1,14 @@
+module.exports = {
+
+  context: __dirname,
+
+  entry: {
+    main: "./src/main.js",
+  },
+
+  output: {
+    path: __dirname + '/build/',
+    filename: '[name].js'
+  }
+
+};

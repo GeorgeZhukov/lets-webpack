@@ -1,0 +1,672 @@
+<!DOCTYPE html><html><head><link rel="stylesheet" href="/reveal.css"><title>Let's webpack</title></head><body><div class="reveal"><div class="slides"><section><section><h2>What is Webpack</h2><ul><li>Module bundler</li><li>Understands CommonJS and AMD</li><li>Creates one or many bundles</li><li>Treats every asset as a module</li><li>Provides hooks to transform modules</li><li>Provides hooks into the bundling process</li><li>And more</li></ul></section></section><section><section><h2>Getting Started</h2><pre><code class="hljs">$ npm init
+$ npm install -g webpack
+$ mkdir src; touch src/main.js;
+$ echo "console.log('hello')" > src/main.js
+$
+$ webpack src/main.js bundle/main.js
+Hash: 46b75511c049183a12a0
+Version: webpack 2.2.1
+Time: 54ms
+  Asset     Size  Chunks             Chunk Names
+build.js  2.53 kB       0  [emitted]  main
+  [0] ./src/main.js 22 bytes {0} [built]
+$
+$ ls
+$ bundle          package.json    src
+
+</code></pre></section><section><h3>bundle/main.js</h3><img src="https://babakhanov.github.io/lets-webpack/bundle-fd82ef9e91efeaaa266429b4a871fb4a.png"></section><section><h3>70 lines of code for hello world</h3><img src="https://babakhanov.github.io/lets-webpack/wtf-57aafd3175ea0dc9613e1cfd43fcfa51.jpg"></section><section><h3>Webpack config</h3><pre><code class="hljs javascript">module.exports = {
+
+  context: __dirname,
+
+  entry: {
+    main: "./src/main.js",
+  },
+
+  output: {
+    path: __dirname + '/build/',
+    filename: '[name].js'
+  }
+
+};
+</code></pre></section><section><h4>src/greeting.js</h4><pre><code class="hljs javascript">export default (name) => {
+  alert(`hello ${name}`);
+};</code></pre><h4>require greeting into src/main.js</h4><pre><code class="hljs javascript">var greeting = require("./greeting.js");
+greeting('world');</code></pre></section><section><h3>run it</h3><pre><code class="hljs">$ webpack
+$
+Hash: 9ba2aac4f1199550e181
+Version: webpack 1.14.0
+Time: 41ms
+  Asset     Size  Chunks             Chunk Names
+main.js  1.41 kB       0  [emitted]  main
+  [0] ./src/main.js 22 bytes {0} [built]</code></pre></section><section><h3>Here we go</h3><pre><code class="hljs javascript"> (function(modules) { // webpackBootstrap
+   // The module cache
+   var installedModules = {};
+
+   // The require function
+   function __webpack_require__(moduleId) {
+
+     // Check if module is in cache
+     if(installedModules[moduleId])
+       return installedModules[moduleId].exports;
+
+     // Create a new module (and put it into the cache)
+     var module = installedModules[moduleId] = {
+       exports: {},
+       id: moduleId,
+       loaded: false
+     };
+
+     // Execute the module function
+     modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+     // Flag the module as loaded
+     module.loaded = true;
+
+     // Return the exports of the module
+     return module.exports;
+   }
+
+
+   // expose the modules object (__webpack_modules__)
+   __webpack_require__.m = modules;
+
+   // expose the module cache
+   __webpack_require__.c = installedModules;
+
+   // __webpack_public_path__
+   __webpack_require__.p = "";
+
+   // Load entry module and return exports
+   return __webpack_require__(0);
+ })([
+  function(module, exports, __webpack_require__) {
+    var greeting = __webpack_require__(1);
+    greeting('World');
+  },
+  function(module, exports) {
+    export default (text) => {
+      alert(`hello ${text}`);
+    };
+  }
+]);
+</code></pre></section><section><h4>webpack --profile</h4><a href="https://webpack.github.io/analyse/">webpack.github.io/analyse</a><pre><code class="hljs">$ webpack --profile --json > stat.json</code></pre><img src="https://babakhanov.github.io/lets-webpack/graph1-ed10679571e7d59d52267b4cfb092501.png"></section><section><h3>this presentation's json</h3><img src="https://babakhanov.github.io/lets-webpack/graph2-2d76afe9bdb5d72f7f8f50831e88a1be.png"></section><section><h5>webpack --display-modules</h5><pre><code class="hljs">$ webpack --display-modules
+Hash: 8eb2d67b300c3c076149
+Version: webpack 1.14.0
+Time: 51ms
+  Asset     Size  Chunks             Chunk Names
+main.js  1.58 kB       0  [emitted]  main
+  [0] ./src/main.js 61 bytes {0} [built]
+  [1] ./src/greeting.js 57 bytes {0} [built]</code></pre><div>Shows us all modules are loaded, size, etc</div></section><section><section><pre><code class="hljs javascript">([
+  function(module, exports, __webpack_require__) {
+    var greeting = __webpack_require__(1);
+    greeting('World');
+  },
+  function(module, exports) {
+    export default (text) => {
+      alert(`hello ${text}`);
+    };
+  }
+})</code></pre></section><section><img src="https://babakhanov.github.io/lets-webpack/babel_meme-7d0485cc865fc934d8f8d8ee8e41c054.jpg"></section></section></section><section><section><h2>Babel</h2><div>Babel has support for the latest version of JavaScript through syntax transformers. These plugins allow you to use new syntax, right now without waiting for browser support. Check out our env preset to get started</div><pre><code class="hljs">$ npm install --save babel-core babel-loader</code></pre></section><section><h3>Loaders</h3><ul><li>Loaders allow you to preprocess files as you require() or "load" them.</li><li>Loaders are kind of like "tasks" in other build tools.</li><li>core -> loaders -> plugins -> output</li></ul></section><section><h3>babel-loader</h3><pre><code class="hljs javascript">module.exports = {
+
+  context: __dirname,
+
+  entry: {
+    main: "./src/main.js",
+  },
+
+  output: {
+    path: __dirname + '/build/',
+    filename: '[name].js'
+  },
+
+  module: {
+    loaders: [{
+      test: /\.js$/,
+      loader: 'babel-loader',
+    }]
+  }
+};
+</code></pre></section><section><h6>run it (still nothing)</h6><pre><code class="hljs">$ webpack</code></pre><pre><code class="hljs javascript">/***/ function(module, exports) {
+
+  export default (text => {
+    alert(`hello ${text}`);
+  });
+
+/***/ }
+</code></pre></section><section><h3>babel needs preset</h3><img src="https://babakhanov.github.io/lets-webpack/babel_needs_preset-832f4e31487ad3eb99f6625f72ef4f91.png"></section><section><h2>history</h2><ul><li>1995 - JavaScript is made (in 10 days, Brendan Eich)</li><li>1997 - First ECMAScript (ES) spec</li><li>1999 - ES3</li><li>ES4 - Huuuuge update - Abandoned</li><li>2009 - ES5</li><li>2015 - ES2015 (formely ES6) new release procedure</li><li>2015 - ES2016 (formely ES7)</li><li>2017 - ES2017</li></ul></section><section><h2>Whats new in es2015</h2><ul><li>block scope variables (let a;) and constants (const x;)</li><li>arrow functions</li><li>classes</li><li>string literals (`hello ${name}`)</li><li>etc</li></ul></section><section><h3>Babel es2015 preset</h3><pre><code class="hljs">$ npm install --save babel-preset-es2015</code></pre><pre><code class="hljs javascript">module: {
+  loaders: [{
+    test: /\.js$/,
+    loader: 'babel-loader',
+    query: {
+      presets: ['es2015'],
+    }
+  }]
+}
+</code></pre></section><section><h6>run in with es2015 preset</h6><pre><code class="hljs">$ webpack</code></pre><pre><code class="hljs javascript">/***/ function(module, exports, __webpack_require__) {
+
+  "use strict";
+
+  var greeting = __webpack_require__(1);
+  greeting('World');
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  exports.default = function (text) {
+    alert("hello " + text);
+  };
+
+/***/ }
+/******/ ]);
+</code></pre></section></section><section><section><h3>Require</h3><h6>main.js</h6><pre><code class="hljs javascript">var greeting;
+if (Math.random(0, 1) < 0.6){
+  greeting = require("./greetings/hello.js");
+}else{
+  greeting = require("./greetings/goodbye.js");
+}
+greeting.default('World');
+</code></pre><h6>greetings/hello.js</h6><pre><code class="hljs javascript">export default (name) => alert(`hello ${name}`);</code></pre><h6>greetings/goodbye.js</h6><pre><code class="hljs javascript">export default (name) => alert(`goodbye ${name}`);</code></pre></section><section><h4>all modules in a bundle</h4><pre><code class="hljs javascript">/* 1 */
+/***/ function(module, exports) {
+
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  exports.default = function (name) {
+    return alert("hello " + name);
+  };
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  exports.default = (name) => {
+    alert("goodbye " + name);
+  };
+
+/***/ }</code></pre></section><section><h4>require.ensure([])</h4><pre><code class="hljs javascript">require.ensure([], function(require){
+  var greeting;
+
+  if (Math.random(0, 1) < 0.6){
+    greeting = require("./greetings/hello.js");
+  }else{
+    greeting = require("./greetings/goodbye.js");
+  }
+  greeting.default('World');
+});
+</code></pre><pre><code class="hljs">$ webpack
+Hash: 499f8557ea12ea12c458
+Version: webpack 1.14.0
+Time: 485ms
+  Asset     Size  Chunks             Chunk Names
+main.js  9.73 kB       0  [emitted]  main
+1.1.js  1.24 kB       1  [emitted]
+    + 3 hidden modules</code></pre></section><section><h5>Here we go</h5><img src="https://babakhanov.github.io/lets-webpack/loads-6b6a4ee8c99d927f7bb4ff57b590f30d.png"></section><section><h5>1.1.js</h5><pre><code class="hljs">webpackJsonp([1],[
+/* 0 */,
+/* 1 */
+/***/ function(module, exports) {
+
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  exports.default = function (name) {
+    return alert("hello " + name);
+  };
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  exports.default = function (name) {
+    alert("goodbye " + name);
+  };
+
+/***/ }
+]);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9zcmMvZ3JlZXRpbmdzL2hlbGxvLmpzIiwid2VicGFjazovLy8uL3NyYy9ncmVldGluZ3MvZ29vZGJ5ZS5qcyJdLCJuYW1lcyI6WyJuYW1lIiwiYWxlcnQiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7O21CQUFlLFVBQUNBLElBQUQ7QUFBQSxVQUFVQyxpQkFBZUQsSUFBZixDQUFWO0FBQUEsRTs7Ozs7Ozs7Ozs7O21CQ0FBLFVBQUNBLElBQUQsRUFBVTtBQUFFQyxzQkFBaUJELElBQWpCO0FBQTJCLEUiLCJmaWxlIjoiMS4xLmpzIiwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IGRlZmF1bHQgKG5hbWUpID0+IGFsZXJ0KGBoZWxsbyAke25hbWV9YCk7XG5cblxuXG4vLyBXRUJQQUNLIEZPT1RFUiAvL1xuLy8gLi9zcmMvZ3JlZXRpbmdzL2hlbGxvLmpzIiwiZXhwb3J0IGRlZmF1bHQgKG5hbWUpID0+IHsgYWxlcnQoYGdvb2RieWUgJHtuYW1lfWApOyB9XG5cblxuXG4vLyBXRUJQQUNLIEZPT1RFUiAvL1xuLy8gLi9zcmMvZ3JlZXRpbmdzL2dvb2RieWUuanMiXSwic291cmNlUm9vdCI6IiJ9</code></pre></section><section><h4>Dynamic require</h4><pre><code class="hljs javascript">if (Math.random(0, 1) < 0.6){
+  require.ensure([], function(require){
+    let greeting = require('./greetings/hello.js');
+    greeting.default('World');
+  });
+}else{
+  require.ensure([], function(require){
+    let greeting = require('./greetings/goodbye.js');
+    greeting.default('World');
+  });
+}</code></pre><pre><code class="hljs">$ webpack
+Hash: 50ee75912e554b9bd77d
+Version: webpack 1.14.0
+Time: 504ms
+  Asset       Size  Chunks             Chunk Names
+main.js      10 kB       0  [emitted]  main
+1.1.js  742 bytes       1  [emitted]
+2.2.js  743 bytes       2  [emitted]</code></pre></section><section><h5>1.1.js and 1.2.js</h5><img src="https://babakhanov.github.io/lets-webpack/1_2-2e7b41596c3b8a66f903a5f6089903be.png"></section><section><h5>1.1.js and 1.2.js</h5><img src="https://babakhanov.github.io/lets-webpack/script_tag-152e906cbc4ebfbca8e5bf0e3996cba4.png"></section><section><h5>1.greetings.js</h5><pre><code class="hljs javascript">if (Math.random(0, 1) < 0.6){
+  require.ensure([], function(require){
+    let greeting = require('./greetings/hello.js');
+    greeting.default('World');
+  }, 'greetings');
+}else{
+  require.ensure([], function(require){
+    let greeting = require('./greetings/goodbye.js');
+    greeting.default('World');
+  }, 'greetings');
+}</code></pre><pre><code class="hljs">$ webpack
+Hash: e3eeb1a772b9d46ca452
+Version: webpack 1.14.0
+Time: 696ms
+        Asset     Size  Chunks             Chunk Names
+      main.js  10.1 kB       0  [emitted]  main
+1.greetings.js  1.25 kB       1  [emitted]  greetings
+    + 3 hidden modules</code></pre></section><section><h5>main.js</h5><pre><code class="hljs javascript">__webpack_require__.e = function requireEnsure(chunkId, callback) {
+  // "0" is the signal for "already loaded"
+  if(installedChunks[chunkId] === 0)
+    return callback.call(null, __webpack_require__);
+
+  // an array means "currently loading".
+  if(installedChunks[chunkId] !== undefined) {
+    installedChunks[chunkId].push(callback);
+  } else {
+    // start chunk loading
+    installedChunks[chunkId] = [callback];
+    var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.charset = 'utf-8';
+    script.async = true;
+    script.src = __webpack_require__.p + "" + chunkId + "." + ({"1":"greetings"}[chunkId]||chunkId) + ".js";
+    head.appendChild(script);
+  }
+};
+
+if (Math.random(0, 1) < 0.6) {
+  __webpack_require__.e/* nsure */(1, function (require) {
+    var greeting = __webpack_require__(1);
+    greeting.default('World');
+  });
+} else {
+  __webpack_require__.e/* nsure */(1, function (require) {
+    var greeting = __webpack_require__(2);
+    greeting.default('World');
+  });
+}</code></pre></section><section><h5>require (expression)</h5><pre><code class="hljs javascript">let method = Math.random(0, 1) < 0.6 ? 'hello' : 'goodbye';
+let greeting = require("./greetings/" + method + ".js");
+greeting.default('World');</code></pre><div><a href="https://webpack.github.io/docs/context.html">webpack.github.io/docs/context.html</a></div><pre><code class="hljs javascript">let method = Math.random(0, 1) < 0.6 ? './greetins/hello.js' : './greetings/goodbye.js';
+let greeting = require(method); // won't work
+greeting.default('World');</code></pre></section><section><h5>require (expression)</h5><pre><code class="hljs javascript">function(module, exports, __webpack_require__) {
+
+  var map = {
+    "./goodbye.js": 2,
+    "./hello.js": 3
+  };
+  function webpackContext(req) {
+    return __webpack_require__(webpackContextResolve(req));
+  };
+  function webpackContextResolve(req) {
+    return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+  };
+  webpackContext.keys = function webpackContextKeys() {
+    return Object.keys(map);
+  };
+  webpackContext.resolve = webpackContextResolve;
+  module.exports = webpackContext;
+  webpackContext.id = 1;
+}</code></pre></section><section><h5>require context</h5><pre><code class="hljs javascript">let method = Math.random(0, 1) < 0.6 ? 'hello' : 'goodbye';
+let context = require.context("./greetings")
+let greeting = context("./" + method);
+greeting.default('World');
+</code></pre><pre><code class="hljs">$ webpack
+Hash: a62d17ecc61bae8114b8
+Version: webpack 1.14.0
+Time: 512ms
+  Asset     Size  Chunks             Chunk Names
+main.js  6.97 kB       0  [emitted]  main
+  [1] ./src/greetings ^\.\/.*$ 218 bytes {0} [built]
+    + 3 hidden modules
+</code></pre></section><section><h5>require context</h5><ul><li>webpackContext.keys // get keys for context</li><li>webpackContext.resolve // checks if context exists</li></ul><pre><code class="hljs javascript">function(module, exports, __webpack_require__) {
+
+  var map = {
+    "./goodbye": 2,
+    "./goodbye.js": 2,
+    "./hello": 3,
+    "./hello.js": 3
+  };
+  function webpackContext(req) {
+    return __webpack_require__(webpackContextResolve(req));
+  };
+  function webpackContextResolve(req) {
+    return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+  };
+  webpackContext.keys = function webpackContextKeys() {
+    return Object.keys(map);
+  };
+  webpackContext.resolve = webpackContextResolve;
+  module.exports = webpackContext;
+  webpackContext.id = 1;
+
+}
+</code></pre></section><section><h5>but we want to load it dynamically and from different file</h5><pre><code class="hljs javascript">let method = Math.random(0, 1) < 0.6 ? 'hello' : 'goodbye';
+let context = require.context("./greetings")
+let greeting = context("./" + method);
+greeting.default('World');</code></pre><pre><core class="hljs javascript">// greetings/hello.js
+export default (name) => {
+  require.ensure([], function(require){
+    let greeting = require('../source/greetings/hello.js');
+    greeting.default(name);
+  });
+}</core></pre><div>And for each module 😥</div></section><section><h5>bundle-loader</h5><pre><code class="hljs">$ npm install --save bundle-loader
+$ touch ./src/greetings/goodnght.js
+$ echo "export default (name) => alert(`goodnight ${name}`);" > ./src/greetings/goodnight.js</code></pre><pre><code class="hljs javascript">let method = Math.random(0, 1) < 0.6 ? 'hello' : 'goodbye';
+require(`bundle!./greetings/${method}`)(function(greeting){
+  greeting.default('World');
+});
+</code></pre><pre><code class="hljs">$ webpack
+Hash: 4e4606313936f8e00556
+Version: webpack 1.14.0
+Time: 732ms
+  Asset       Size  Chunks             Chunk Names
+main.js    15.1 kB       0  [emitted]  main
+1.1.js  743 bytes       1  [emitted]
+2.2.js  760 bytes       2  [emitted]
+3.3.js  736 bytes       3  [emitted]
+    + 8 hidden modules</code></pre></section><section><h5>bundle loader</h5><div><a href="https://github.com/webpack-contrib/bundle-loader/blob/master/index.js">github.com/webpack-contrib/bundle-loader/blob/master/index.js</a></div><pre><code class="hljs javascript">require.ensure([], function(require) {
+    data = require("!!./../../node_modules/babel-loader/lib/index.js?{\"presets\":[\"es2015\"]}!./goodnight.js");
+    var callbacks = cbs;
+    cbs = null;
+    for(var i = 0, l = callbacks.length; i < l; i++) {
+            callbacks[i](data);
+    }
+});</code></pre></section><section><h5>Webpack doesn't understand us?</h5><div>An anonymous FunctionDeclaration can only occur as part of an export default declaration, and its function code is therefore always strict mode code.
+</div></section><section><h5>add-module-exports</h5><a href="https://github.com/59naga/babel-plugin-add-module-exports">github.com/59naga/babel-plugin-add-module-exports</a><pre><code class="hljs">$ npm install babel-plugin-add-module-exports --save</code></pre><pre><code class="hljs">module: {
+  loaders: [{
+    test: /\.js$/,
+    loader: 'babel-loader',
+    query: {
+      presets: ['es2015'],
+      plugins: [
+        'add-module-exports'
+      ]
+    }
+  }]
+}</code></pre><pre><code class="hljs">let method = Math.random(0, 1) < 0.6 ? 'hello' : 'goodbye';
+require(`bundle-loader!./greetings/${method}`)((greeting) => {
+  greeting('World');
+});</code></pre></section></section><section><section><h2>More Loaders</h2><img src="https://babakhanov.github.io/lets-webpack/loaders-519d6d8dc7f3568d356f2a5841574876.png"></section><section><h6>how to load css</h6><pre><code class="hljs javascript">{
+  test: /\.css$/,
+  loader: ['style-loader', 'css-loader'],
+}</code></pre><ul><li><a href="https://github.com/webpack-contrib/css-loader">github.com/webpack-contrib/css-loader</a><ul><li>The CSS loader takes a CSS file and returns the CSS with imports and url(...) resolved via webpack's require functionality</li></ul></li><li><a href="https://github.com/webpack-contrib/style-loader">github.com/webpack-contrib/style-loader</a><ul><li>Adds CSS to the DOM by injecting a &lt;style&gt; tag</li></ul></li></ul></section><section><h6>require it from js file</h6><pre><code class="hljs javascript">require("reveal.js/css/reveal.css");
+require("reveal.js/css/theme/solarized.css");
+require("highlight.js/styles/solarized-dark.css");</code></pre><img src="https://babakhanov.github.io/lets-webpack/style_tag-48030d45678a00fc51dd2d2f616e58db.png"></section><section><h3>Preprocessing</h3><ul><li><a href="https://github.com/webpack-contrib/coffee-loader">github.com/webpack-contrib/coffee-loader</a></li><li><a href="https://github.com/TypeStrong/ts-loader">github.com/TypeStrong/ts-loader</a></li><li><a href="https://github.com/jtangelder/sass-loader">github.com/jtangelder/sass-loader</a></li><li><a href="https://github.com/pugjs/pug-loader">github.com/pugjs/pug-loader</a><span>(jade)</span></li><li>.....</li><li>a lot of them</li></ul></section><section><h4>url-loader (file-loader)</h4><pre><code class="hljs javascript">{
+  test: /\.(eot|woff|woff2|ttf|svg|png|jpg)$/,
+  loader: 'url-loader?name=[name]-[hash].[ext]'
+}</code></pre></section><section><h4>url-loader (file-loader)</h4><ul><li>generates file names that are "content hashed"</li><li>If you require the file to get its URL, therefore, none of the code has to change references to the new version of the file.</li><li>Anything loaded with file-loader gets included in the assets JSON output of webpack, so you can see all the assets in one place.</li><li>The url loader works like the file loader, but can return a Data Url if the file is smaller than a byte limit.</li></ul></section><section><h4>Pre/Post Loaders</h4><pre><code class="hljs">module.exports = {
+  module: {
+    preLoaders: [{
+      test:    /\.js$/,
+      exclude: /(node_modules)\//,
+      loader:  'jshint!jscs'
+    }],
+
+    postLoaders: [{
+      test:    /\.js$/,
+      exclude: /(test|node_modules)\//,
+      loader:  'istanbul-instrumenter'
+    }]
+  }
+};</code></pre></section><section><h4>Loaders are applying in this order</h4><ul><li>module.preLoaders are applied</li><li>Inlined loaders are applied</li><li>module.loaders are applied</li><li>module.postLoaders are applied</li></ul></section></section><section><section><h4>Dev Tools</h4><ul><li>devtool</li><li>watch</li><li>webpack-dev-server</li></ul></section><section><h5>devtool</h5><div><a href="https://webpack.github.io/docs/configuration.html#devtool">webpack.github.io/docs/configuration.html#devtool</a></div><img src="https://babakhanov.github.io/lets-webpack/debugger-87b674a3d98af5d30e6b2603185e1e62.png"></section><section><h6>devtool: "source-map" // for two file project</h6><pre><code class="hljs javascript">{
+  "version":3,
+  "sources":[
+      "webpack:///webpack/bootstrap d40f909fb0c93e35b1e2",
+      "webpack:///./src/main.js",
+      "webpack:///./src/greeting.js"
+  ],
+  "names":[
+      "greeting",
+      "require",
+      "text",
+      "alert"
+  ],
+  "mappings":";AAAA;AACA;;AAEA;AACA;;AAEA;AACA;AACA;;AAEA;AACA;AACA,uBAAe;AACf;AACA;AACA;;AAEA;AACA;;AAEA;AACA;;AAEA;AACA;AACA;;;AAGA;AACA;;AAEA;AACA;;AAEA;AACA;;AAEA;AACA;;;;;;;;;ACtCA,KAAIA,WAAW,mBAAAC,CAAQ,CAAR,CAAf;AACAD,UAAS,OAAT,E;;;;;;;;;;;;mBCDe,UAACE,IAAD,EAAU;AACvBC,oBAAeD,IAAf;AACD,E",
+  "file":"main.js",
+  "sourcesContent":[
+      " \t// The module cache\n \tvar installedModules = {};\n\n \t// The require function\n \tfunction __webpack_require__(moduleId) {\n\n \t\t// Check if module is in cache\n \t\tif(installedModules[moduleId])\n \t\t\treturn installedModules[moduleId].exports;\n\n \t\t// Create a new module (and put it into the cache)\n \t\tvar module = installedModules[moduleId] = {\n \t\t\texports: {},\n \t\t\tid: moduleId,\n \t\t\tloaded: false\n \t\t};\n\n \t\t// Execute the module function\n \t\tmodules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n\n \t\t// Flag the module as loaded\n \t\tmodule.loaded = true;\n\n \t\t// Return the exports of the module\n \t\treturn module.exports;\n \t}\n\n\n \t// expose the modules object (__webpack_modules__)\n \t__webpack_require__.m = modules;\n\n \t// expose the module cache\n \t__webpack_require__.c = installedModules;\n\n \t// __webpack_public_path__\n \t__webpack_require__.p = \"\";\n\n \t// Load entry module and return exports\n \treturn __webpack_require__(0);\n\n\n\n// WEBPACK FOOTER //\n// webpack/bootstrap d40f909fb0c93e35b1e2",
+      "var greeting = require(\"./greeting.js\");\ngreeting('World');\n\n\n\n\n// WEBPACK FOOTER //\n// ./src/main.js",
+      "export default (text) => {\n  alert(`hello ${text}`);\n};\n\n\n\n\n// WEBPACK FOOTER //\n// ./src/greeting.js"
+  ],
+  "sourceRoot":""
+}</code></pre></section><section><h5>devtool: eval</h5><pre><code class="hljs javascript">eval("\"use strict\";\n\nvar greeting = __webpack_require__(1);\ngreeting('World');\n\n//////////////////\n// WEBPACK FOOTER\n// ./src/main.js\n// module id = 0\n// module chunks = 0\n//# sourceURL=webpack:///./src/main.js?");
+</code></pre></section><section><h5>watch</h5><pre><code class="hljs javascipt">const NODE_ENV = process.env.NODE_ENV || 'development';
+
+module.exports = {
+
+  context: __dirname,
+
+  watch: NODE_ENV == 'development',
+
+  watchOptions: {
+    aggregateTimeout: 100
+  },
+
+  entry: {
+    main: "./src/main.js",
+  },
+
+  output: {
+    path: __dirname + '/build/',
+    filename: '[name].js'
+  },
+
+  devtool: 'eval',
+
+  module: {
+    loaders: [{
+      test: /\.js$/,
+      loader: 'babel-loader',
+      query: {
+        presets: ['es2015'],
+      }
+    }]
+  }
+};
+</code></pre><pre><code class="hljs">$ NODE_ENV=production webpack</code></pre><pre><code class="hljs">$ webpack</code></pre></section><section><h3>webpack-dev-server</h3><pre><code class="hljs">$ webpack-dev-server
+Project is running at http://localhost:8080/
+webpack output is served from /</code></pre><img src="https://babakhanov.github.io/lets-webpack/dev_server-4f6af47e81bd856fd0d8915700b77954.png"></section></section><section><section><h2>Plugins</h2><img src="https://babakhanov.github.io/lets-webpack/plugins-672b3e5c14510ed37ea8ed4127aaedec.jpg"></section><section><h2>Plugins</h2><div>Using staged build callbacks, developers can introduce their own behaviors into the Webpack build process. Building plugins is a bit more advanced than building loaders, because you'll need to understand some of the Webpack low-level internals to hook into them.</div></section><section><h5>html plugin</h5><a href="https://github.com/jantimon/html-webpack-plugin">github.com/jantimon/html-webpack-plugin</a><pre><code class="hljs">$ npm install html-webpack-plugin --save</code></pre><pre><code class="hljs javascript">const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  context: __dirname,
+  plugins: [new HtmlWebpackPlugin()],
+...</code></pre><pre><code class="hljs">$ webpack
+Hash: 62362b5f4e11078c7f0b
+Version: webpack 2.2.1
+Time: 5918ms
+    Asset       Size  Chunks             Chunk Names
+      0.js  789 bytes       0  [emitted]
+      1.js  809 bytes       1  [emitted]
+      2.js  792 bytes       2  [emitted]
+  main.js    19.9 kB       3  [emitted]  main
+index.html  180 bytes          [emitted]</code></pre></section><section><h5>html plugin (index.html)</h5><pre><code class="hljs">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Webpack App&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+  &lt;script type="text/javascript" src="main.js"&gt;&lt;/script&gt;&lt;/body&gt;
+&lt;/html&gt;</code></pre></section><section><h5>html plugin</h5><pre><code class="hljs javascript">const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+
+  context: __dirname,
+
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/index.jade',
+      inject: false,
+      minify: true,
+      // title: 'A document Title',
+      // filename: 'example.html',
+      // favicon: '/path/to/favicon.ico',
+      // hash: true,
+      // cache: true,
+      // ...
+    })
+  ],</code></pre></section><section><h5>No Emit On Errors Plugin</h5><pre><code class="hljs">entry: {
+  main: "./src/main.js",
+  hello: "./src/hello.js",
+},</code></pre><pre><code class="hljs">$ webpack
+Hash: c65ef066bafa9bddfe7e
+Version: webpack 2.2.1
+Time: 6093ms
+    Asset       Size  Chunks             Chunk Names
+  main.js    6.43 kB       0  [emitted]  main
+index.html  180 bytes          [emitted]
+  [0] ./src/main.js 36 bytes {0} [built]
+
+ERROR in Entry module not found: Error: Can't resolve './src/hello.js' in '/Users/alex/tmp/xo'</code></pre></section><section><h5>No Emit On Errors Plugin</h5><pre><code class="hljs">class NoEmitOnErrorsPlugin {
+  apply(compiler) {
+    compiler.plugin("should-emit", (compilation) => {
+      if(compilation.errors.length > 0)
+        return false;
+    });
+    compiler.plugin("compilation", (compilation) => {
+      compilation.plugin("should-record", () => {
+        if(compilation.errors.length > 0)
+          return false;
+      });
+    });
+  }
+}</code></pre></section><section><h5>No Emit On Errors Plugin</h5><pre><code class="hljs javascript">const HtmlWebpackPlugin = require('html-webpack-plugin');
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const webpack = require("webpack");
+
+module.exports = {
+
+  context: __dirname,
+
+  plugins: [
+    new HtmlWebpackPlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
+  ],
+...</code></pre><pre><code class="hljs">$ webpack
+Hash: c65ef066bafa9bddfe7e
+Version: webpack 2.2.1
+Time: 6462ms
+  [0] ./src/main.js 36 bytes {0} [built]
+
+ERROR in Entry module not found: Error: Can't resolve './src/hello.js' in '/Users/alex/tmp/xo'</code></pre></section><section><h5>Define plugin</h5><pre><code class="hljs javascipt">// webpack.config.js
+
+new webpack.DefinePlugin({
+  NODE_ENV: JSON.stringify(NODE_ENV),
+  LANG:     JSON.stringify('ru'),
+})</code></pre><pre><code class="hljs javascipt">// main.js
+console.log(NODE_ENV);
+console.log(LANG);</code></pre><img src="https://babakhanov.github.io/lets-webpack/define_plugin-221f81a61f5e483207372ad7560cb2b5.png"></section><section><h5>Provide plugin</h5><pre><code class="hljs javascript">plugins: [
+  new HtmlWebpackPlugin(),
+  new webpack.NoEmitOnErrorsPlugin(),
+  new webpack.DefinePlugin({
+    NODE_ENV: JSON.stringify(NODE_ENV),
+    LANG:     JSON.stringify('ru'),
+  }),
+  new webpack.ProvidePlugin({
+    jQuery: "jquery"
+  })
+],</code></pre></section><section><h5>Provide plugin</h5><pre><code class="hljs javascript">var main = () => {
+  jQuery("body").css({backgroundColor: 'pink'}); // just works
+  true;
+};
+
+export default main();</code></pre><img src="https://babakhanov.github.io/lets-webpack/provide_plugin-c95902ba8ed7aa3031cd9f4bbc2d0d34.png"></section><section><h5>commons chunk plugin</h5><a href="http://webpack.github.io/docs/list-of-plugins.html#commonschunkplugin">webpack.github.io/docs/list-of-plugins.html#commonschunkplugin</a><pre><code class="hljs javascipt">// ...
+entry: {
+  main:     "./src/main.js",
+  admin:    "./src/admin.js",
+  contacts: "./src/contacts.js",
+},</code></pre><pre><code class="hljs">$ webpack
+Hash: fdce4fdec7450482c92a
+Version: webpack 2.2.1
+Time: 3931ms
+      Asset    Size  Chunks                    Chunk Names
+    main.js  997 kB       0  [emitted]  [big]  main
+contacts.js  997 kB       1  [emitted]  [big]  contacts
+  admin.js  997 kB       2  [emitted]  [big]  admin</code></pre></section><section><h5>commons chunk plugin</h5><pre><code class="hljs javascipt">// ...
+entry: {
+  main:     "./src/main.js",
+  admin:    "./src/admin.js",
+  contacts: "./src/contacts.js",
+},
+plugins: [
+  new webpack.optimize.CommonsChunkPlugin({
+    name: "commons",
+    // (the commons chunk name)
+
+    filename: "commons.js",
+    // (the filename of the commons chunk)
+
+    // minChunks: 3,
+    // (Modules must be shared between 3 entries)
+
+    // chunks: ["pageA", "pageB"],
+    // (Only use these entries)
+  })
+]</code></pre></section><section><h5>commons chunk plugin</h5><pre><code class="hljs">$ webpack
+Hash: b7ad5a335760407cca4c
+Version: webpack 2.2.1
+Time: 3261ms
+      Asset     Size  Chunks                    Chunk Names
+    main.js  1.12 kB       0  [emitted]         main
+contacts.js  1.14 kB       1  [emitted]         contacts
+  admin.js  1.13 kB       2  [emitted]         admin
+commons.js     1 MB       3  [emitted]  [big]  commons </code></pre><pre><code class="hljs html">&lt;script type="text/javascript" src="commons.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="main.js"&gt;&lt;/script&gt;</code></pre></section><section><h5>Extract Text Plugin</h5><pre><code class="hljs">const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+module.exports = {
+  loaders: [{
+    test: /\.css$/,
+    loader: ExtractTextPlugin.extract({
+      fallback: 'style-loader', // loaders which applies when text is not extracted
+      loader: [{
+        loader: 'css-loader'
+      }]
+    })
+  }],
+
+  plugins: [
+    new ExtractTextPlugin("./src/style.css"),
+    new webpack.DefinePlugin({
+      NODE_ENV: JSON.stringify(NODE_ENV),
+      LANG:     JSON.stringify('ru'),
+    }),
+    new webpack.ProvidePlugin({
+      jQuery: "jquery"
+    }),
+  ],
+},</code></pre></section><section><h5>Extract Text Plugin</h5><pre><code class="hljs">$ webpack
+loader option has been deprecated - replace with "use"
+Hash: cc4848cb2463df83c8f6
+Version: webpack 2.2.1
+Time: 4000ms
+          Asset       Size  Chunks                    Chunk Names
+        main.js     998 kB       0  [emitted]  [big]  main
+./src/style.css  214 bytes       0  [emitted]         main</code></pre></section></section><section><div>👏👏👏</div><h1>the end</h1><div>👏👏👏</div></section></div></div><script src="main.js"></script></body></html>

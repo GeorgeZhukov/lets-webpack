@@ -1,0 +1,71 @@
+section
+  section
+    h2.
+      Babel
+    div.
+      Babel has support for the latest version of JavaScript through syntax transformers. These plugins allow you to use new syntax, right now without waiting for browser support. Check out our env preset to get started
+    pre
+      code.hljs.
+        $ npm install --save babel-core babel-loader
+  section
+    h3.
+      Loaders
+    ul
+      li Loaders allow you to preprocess files as you require() or "load" them.
+      li Loaders are kind of like "tasks" in other build tools.
+      li core -> loaders -> plugins -> output
+  section
+    h3.
+      babel-loader
+    pre
+      code.hljs.javascript
+        include ../snippets/babel/webpack_config_1.txt
+  section
+    h6 run it (still nothing)
+    pre
+      code.hljs.
+        $ webpack
+    pre
+      code.hljs.javascript
+        include ../snippets/babel/output_1.txt
+  section
+    h3 babel needs preset
+    img(src=require("../img/babel_needs_preset.png"))
+  section
+    h2.
+      history
+    ul
+      li 1995 - JavaScript is made (in 10 days, Brendan Eich)
+      li 1997 - First ECMAScript (ES) spec
+      li 1999 - ES3
+      li ES4 - Huuuuge update - Abandoned
+      li 2009 - ES5
+      li 2015 - ES2015 (formely ES6) new release procedure
+      li 2015 - ES2016 (formely ES7)
+      li 2017 - ES2017
+  section
+    h2.
+      Whats new in es2015
+    ul
+      li block scope variables (let a;) and constants (const x;)
+      li arrow functions
+      li classes
+      li string literals (`hello ${name}`)
+      li etc
+  section
+    h3 Babel es2015 preset
+    pre
+      code.hljs.
+        $ npm install --save babel-preset-es2015
+    pre
+      code.hljs.javascript
+        include ../snippets/babel/webpack_config_2.txt
+  section
+    h6 run in with es2015 preset
+    pre
+      code.hljs.
+        $ webpack
+    pre
+      code.hljs.javascript
+        include ../snippets/babel/output_2.txt
+

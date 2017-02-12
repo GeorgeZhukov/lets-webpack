@@ -1,0 +1,103 @@
+section
+  section
+    h2 What is Webpack
+    ul
+      li Module bundler
+      li Understands CommonJS and AMD
+      li Creates one or many bundles
+      li Treats every asset as a module
+      li Provides hooks to transform modules
+      li Provides hooks into the bundling process
+      li And more
+section
+  section
+    h2.
+      Getting Started
+    pre
+      code.hljs
+        include ../snippets/start/start.txt
+  section
+    h3.
+      bundle/main.js
+    img(src=require("../img/bundle.png"))
+  section
+    h3 70 lines of code for hello world
+    img(src=require("../img/wtf.jpg"))
+  section
+    h3.
+      Webpack config
+    pre
+      code.hljs.javascript
+        include ../snippets/start/webpack_base_config.txt
+  section
+    h4 src/greeting.js
+    pre
+      code.hljs.javascript.
+        export default (name) => {
+          alert(`hello ${name}`);
+        };
+    h4 require greeting into src/main.js
+    pre
+      code.hljs.javascript.
+        var greeting = require("./greeting.js");
+        greeting('world');
+  section
+    h3.
+      run it
+    pre
+      code.hljs.
+        $ webpack
+        $
+        Hash: 9ba2aac4f1199550e181
+        Version: webpack 1.14.0
+        Time: 41ms
+          Asset     Size  Chunks             Chunk Names
+        main.js  1.41 kB       0  [emitted]  main
+          [0] ./src/main.js 22 bytes {0} [built]
+  section
+    h3.
+      Here we go
+    pre
+      code.hljs.javascript
+        include ../snippets/start/greeting.txt
+  section
+    h4 webpack --profile
+    a(href='https://webpack.github.io/analyse/') webpack.github.io/analyse
+    pre
+      code.hljs.
+        $ webpack --profile --json > stat.json
+    img(src=require("../img/graph1.png"))
+  section
+    h3 this presentation's json
+    img(src=require("../img/graph2.png"))
+  section
+    h5 webpack --display-modules
+    pre
+      code.hljs.
+        $ webpack --display-modules
+        Hash: 8eb2d67b300c3c076149
+        Version: webpack 1.14.0
+        Time: 51ms
+          Asset     Size  Chunks             Chunk Names
+        main.js  1.58 kB       0  [emitted]  main
+          [0] ./src/main.js 61 bytes {0} [built]
+          [1] ./src/greeting.js 57 bytes {0} [built]
+    div.
+      Shows us all modules are loaded, size, etc
+  section
+    section
+      pre
+        code.hljs.javascript.
+          ([
+            function(module, exports, __webpack_require__) {
+              var greeting = __webpack_require__(1);
+              greeting('World');
+            },
+            function(module, exports) {
+              export default (text) => {
+                alert(`hello ${text}`);
+              };
+            }
+          })
+    section
+      img(src=require("../img/babel_meme.jpg"))
